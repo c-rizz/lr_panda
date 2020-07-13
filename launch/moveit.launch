@@ -1,0 +1,58 @@
+<launch>
+    <arg name="simulated"/>
+    <arg name="rviz_gui" default="false"/>
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="pitch" default="0"/>
+    <arg name="roll" default="0"/>
+    <arg name="yaw" default="0"/>
+
+    <!-- TODO handle different grippers -->
+<!--   <rosparam file="$(find panda)/config/panda_gazebo_control.yaml" command="load" />-->
+    <param name="robot_description"
+         command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_standard_gripper.urdf.xacro'
+         x:=$(arg x)
+         y:=$(arg y)
+         z:=$(arg z)
+         roll:=$(arg roll)
+         pitch:=$(arg pitch)
+         yaw:=$(arg yaw)"
+    />
+
+
+    <group if="$(arg simulated)">
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model"
+             args="-param robot_description -urdf -model panda">
+       </node>
+    </group>
+
+    <rosparam file="$(find panda_simulation)/config/panda_control.yaml" command="load" />
+    <node name="controller_spawner"
+          pkg="controller_manager"
+          type="spawner"
+          respawn="false"
+          output="screen"
+          args="joint_state_controller panda_arm_controller panda_hand_controller" />
+
+<!--    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />-->
+
+<!--    <include file="$(find panda_moveit_config)/launch/planning_context.launch">-->
+<!--        <arg name="load_robot_description" value="true" />-->
+<!--        <arg name="load_gripper" value="true" />-->
+<!--    </include>-->
+<!--    <include file="$(find panda_moveit_config)/launch/move_group.launch">-->
+<!--        <arg name="load_gripper" value="true" />-->
+<!--    </include>-->
+<!--    <group if="$(arg rviz_gui)">-->
+<!--        <include file="$(find panda_moveit_config)/launch/moveit_rviz.launch" />-->
+<!--    </group>-->
+
+<!--    <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />-->
+
+<!--    <node pkg="panda_simulation" type="robot_control_node" name="robot_control_node" output="screen" />-->
+
+<!--    <node pkg="controller_manager" type="spawner" name="joint_position_launcher" args="&#45;&#45;stopped joint_position_controller" />-->
+
+<!--    <node pkg="panda_simulation" type="robot_state_initializer_node" name="robot_state_initializer_node" />-->
+</launch>
