@@ -9,10 +9,5 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-
   <exec_depend>panda_simulation</exec_depend>
-<!-- <export>-->
-<!--    <metapackage />-->
-<!--  </export>-->
-
 </package>
