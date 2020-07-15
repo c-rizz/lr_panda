@@ -51,9 +51,12 @@
                 <arg name="use_sim_time" value="true" />
             </include>
         </group>
-        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda" />
+        <node name="spawn_urdf"
+              pkg="gazebo_ros"
+              type="spawn_model"
+              args="-param robot_description -urdf -model panda -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)" />
         <rosparam file="$(find panda_simulation)/config/panda_control.yaml" command="load" />
-        <rosparam file="$(find panda)/config/panda_gazebo_control.yaml" command="load" />
+<!--        <rosparam file="$(find panda)/config/panda_gazebo_control.yaml" command="load" />-->
         <node pkg="panda_simulation" type="robot_control_node" name="robot_control_node" output="screen" />
         <node pkg="panda_simulation" type="robot_state_initializer_node" name="robot_state_initializer_node" />
     </group>
