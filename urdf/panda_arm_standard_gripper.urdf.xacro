@@ -7,13 +7,14 @@
   <xacro:arg name="pitch" default="0" />
   <xacro:arg name="yaw" default="0" />
   <xacro:arg name="connected_to" default="world" />
+  <xacro:arg name="control_mode" default="effort" />
 
   <xacro:include filename="$(find panda)/urdf/panda_arm.xacro"/>
   <xacro:include filename="$(find panda)/urdf/standard_gripper.xacro"/>
 
   <!-- for simulation -->
   <xacro:include filename="$(find panda)/urdf/panda.gazebo.xacro"/>
-  <xacro:include filename="$(find panda)/urdf/panda.control.xacro"/>
+  <xacro:include filename="$(find panda)/urdf/panda.$(arg control_mode)_control.xacro"/>
   <!-- end for simulation -->
 
   <xacro:panda_arm xyz="$(arg x) $(arg y) $(arg z)" rpy="$(arg roll) $(arg pitch) $(arg yaw)" connected_to="$(arg connected_to)" arm_id="panda"/>

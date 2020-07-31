@@ -1,0 +1,102 @@
+<launch>
+    <arg name="simulated"/>
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="launch_gazebo" default="true"/>
+
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="pitch" default="0"/>
+    <arg name="roll" default="0"/>
+    <arg name="yaw" default="0"/>
+    <!-- GAZEBO arguments -->
+    <arg name="paused" default="false" />
+    <arg name="use_sim_time" default="true" />
+    <arg name="gui" default="true" />
+    <arg name="headless" default="false" />
+    <arg name="debug" default="false" />
+
+    <arg name="effort_control" default="true" /> <!-- use effort controllers on the robot's joints -->
+    <arg name="controller_input" default="joint_trajectory" /> <!-- defines which controller input to use (joint_trajectory, joint poistion, joint effort) -->
+
+
+
+    <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
+
+
+
+    <!-- Load the robot with effort controllers -->
+    <group if="$(arg effort_control)">
+      <param name="robot_description"
+           command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_standard_gripper.urdf.xacro'
+           x:=$(arg x)
+           y:=$(arg y)
+           z:=$(arg z)
+           roll:=$(arg roll)
+           pitch:=$(arg pitch)
+           yaw:=$(arg yaw)
+           control_mode:=effort"
+      />
+
+      <!-- use the robot's effort controllers to implement a joint trajectory controller -->
+      <group if="$(eval controller_input == 'joint_trajectory')">
+        <rosparam file="$(find panda)/config/ros_effort_trajectory_controllers.yaml" command="load" />
+      </group>
+
+      <!-- use the robot's effort controllers to implement a joint position controller -->
+      <group if="$(eval controller_input == 'joint_positions')">
+        <rosparam file="$(find panda)/config/ros_effort_position_controllers.yaml" command="load" />
+      </group>
+
+      <!-- use the robot's effort controllers to implement a joint effort controller -->
+      <group if="$(eval controller_input == 'joint_efforts')">
+        <rosparam file="$(find panda)/config/ros_effort_effort_controllers.yaml" command="load" />
+      </group>
+
+    </group>
+
+    <!-- Load the robot with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
+    <group unless="$(arg effort_control)">
+      <param name="robot_description"
+           command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_standard_gripper.urdf.xacro'
+           x:=$(arg x)
+           y:=$(arg y)
+           z:=$(arg z)
+           roll:=$(arg roll)
+           pitch:=$(arg pitch)
+           yaw:=$(arg yaw)
+           control_mode:=position"
+      />
+
+      <!-- use the robot's joitn position controllers to implement a joint trajectory controller -->
+      <group if="$(eval controller_input == 'joint_trajectory')">
+        <rosparam file="$(find panda)/config/ros_position_trajectory_controllers.yaml" command="load" />
+      </group>
+    </group>
+
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+          args="joint_state_controller panda_arm_controller panda_hand_controller" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+    <group if="$(arg simulated)">
+        <param name="/use_sim_time" value="true"/>
+        <group if="$(arg launch_gazebo)">
+            <!--launch GAZEBO with own world configuration -->
+            <include file="$(find gazebo_ros)/launch/empty_world.launch">
+                <arg name="debug" value="false" />
+                <arg name="gui" value="$(arg gazebo_gui)" />
+                <arg name="paused" value="false" />
+                <arg name="use_sim_time" value="true" />
+            </include>
+        </group>
+        <node name="spawn_urdf"
+              pkg="gazebo_ros"
+              type="spawn_model"
+              args="-param robot_description -urdf -model panda -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)" />
+    </group>
+    <group unless="$(arg simulated)">
+        <!-- TODO launch real robot -->
+    </group>
+
+</launch>
