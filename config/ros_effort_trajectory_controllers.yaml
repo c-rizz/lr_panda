@@ -5,7 +5,7 @@ joint_state_controller:
     publish_rate: 100
 
 # JointTrajectoryController for the arm, allows to follow a joint-space trajectory
-panda_arm_controller:
+panda_arm_effort_trajectory_controller:
     type: effort_controllers/JointTrajectoryController
     joints:
         - panda_joint1
@@ -41,7 +41,7 @@ panda_arm_controller:
 
 
 # JointTrajectoryController for the hand, allows to follow a joint-space trajectory
-panda_hand_controller:
+panda_hand_effort_trajectory_controller:
     type: effort_controllers/JointTrajectoryController
     joints:
         - panda_finger_joint1

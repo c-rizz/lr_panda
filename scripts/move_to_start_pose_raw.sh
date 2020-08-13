@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rostopic pub /panda_arm_controller/follow_joint_trajectory/goal control_msgs/FollowJointTrajectoryActionGoal "header:
+rostopic pub /panda_arm_effort_trajectory_controller/follow_joint_trajectory/goal control_msgs/FollowJointTrajectoryActionGoal "header:
   seq: 0
   stamp:
     secs: 0

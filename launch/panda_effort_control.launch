@@ -17,12 +17,14 @@
     <arg name="debug" default="false" />
 
     <arg name="effort_control" default="true" /> <!-- use effort controllers on the robot's joints -->
-    <arg name="controller_input" default="joint_trajectory" /> <!-- defines which controller input to use (joint_trajectory, joint poistion, joint effort) -->
 
 
 
     <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
+
+    <!-- Load the controller definitions -->
+    <rosparam file="$(find panda)/config/ros_controllers.yaml" command="load" />
 
 
     <!-- Load the robot model with effort controllers -->
@@ -36,6 +38,10 @@
            pitch:=$(arg pitch)
            yaw:=$(arg yaw)
            control_mode:=effort"/>
+
+          <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+                args="--stopped joint_state_controller panda_arm_effort_trajectory_controller panda_hand_effort_trajectory_controller panda_arm_effort_effort_controller panda_hand_effort_effort_controller panda_arm_effort_position_controller panda_hand_effort_position_controller" />
+
     </group>
     <!-- Load the robot model with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
     <group unless="$(arg effort_control)">
@@ -48,38 +54,18 @@
            pitch:=$(arg pitch)
            yaw:=$(arg yaw)
            control_mode:=position"/>
-    </group>
 
-    <!-- Load the controller definitions -->
-    <rosparam file="$(find panda)/config/ros_controllers.yaml" command="load" />
+      <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="--stopped joint_state_controller panda_arm_position_trajectory_controller panda_hand_position_trajectory_controller" />
 
-    <group if="$(arg effort_control)">
-      <!-- use the robot's effort controllers to implement a joint trajectory controller -->
-      <group if="$(eval controller_input == 'joint_trajectory')">
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-              args="joint_state_controller panda_arm_effort_trajectory_controller panda_hand_effort_trajectory_controller" />
-      </group>
-      <!-- use the robot's effort controllers to implement a joint position controller -->
-      <group if="$(eval controller_input == 'joint_positions')">
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-              args="joint_state_controller panda_arm_effort_position_controller panda_hand_effort_position_controller" />
-      </group>
-      <!-- use the robot's effort controllers to implement a joint effort controller -->
-      <group if="$(eval controller_input == 'joint_efforts')">
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-              args="joint_state_controller panda_arm_effort_effort_controller panda_hand_effort_effort_controller" />
-      </group>
-    </group>
-    <!-- Load the robot with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
-    <group unless="$(arg effort_control)">
-      <!-- use the robot's joitn position controllers to implement a joint trajectory controller -->
-      <group if="$(eval controller_input == 'joint_trajectory')">
-        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-              args="joint_state_controller panda_arm_position_trajectory_controller panda_hand_position_trajectory_controller" />
-      </group>
     </group>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+    <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
+      <param name="controllers" value="['panda_arm_effort_trajectory_controller', 'joint_state_controller']"/>
+    </node>
+
 
     <group if="$(arg simulated)">
         <param name="/use_sim_time" value="true"/>
@@ -93,12 +79,15 @@
             </include>
         </group>
 
+
         <node name="spawn_urdf"
               pkg="gazebo_ros"
               type="spawn_model"
-              args="-param robot_description -urdf -model panda -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)\
-              -J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0" />
+              args="-param robot_description -urdf -model panda -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)" />
+        <!-- The arguemnts: "-J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0"
+             work, but not nicely -->
 
+        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.sh"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
         <!--<node name="spawn_urdf"
               pkg="gazebo_ros"
               type="spawn_model"

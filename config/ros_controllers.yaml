@@ -1,0 +1,181 @@
+
+# Not an actual controller, it just publishes the joint state of the robot
+joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------
+# Controllers that maintain joint efforts by controlling the effort
+#------------------------------------------------------------------------------------
+
+
+# JointGroupPositionController for the arm, allows to set the position of the joints
+panda_arm_effort_effort_controller:
+    type: effort_controllers/JointGroupEffortController
+    joints:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+# JointGroupPositionController for the gripper, allows to set the position of the joints
+panda_hand_effort_effort_controller:
+    type: effort_controllers/JointGroupEffortController
+    joints:
+        - panda_finger_joint1
+        - panda_finger_joint2
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------
+# Controllers that a maintain joint positions by controlling the effort
+#------------------------------------------------------------------------------------
+
+
+# JointGroupPositionController for the arm, allows to set the position of the joints
+panda_arm_effort_position_controller:
+    type: effort_controllers/JointGroupPositionController
+    joints:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+    panda_joint1:
+      pid: { p: 12000,   d: 50,    i: 0.0,    i_clamp: 10000 }
+    panda_joint2:
+      pid: { p: 30000,   d: 100,   i: 0.02,   i_clamp: 10000 }
+    panda_joint3:
+      pid: { p: 18000,   d: 50,    i: 0.01,   i_clamp: 1 }
+    panda_joint4:
+      pid: { p: 18000,   d: 70,    i: 0.01,   i_clamp: 10000 }
+    panda_joint5:
+      pid: { p: 12000,   d: 70,    i: 0.01,   i_clamp: 1 }
+    panda_joint6:
+      pid: { p: 7000,    d: 50,    i: 0.01,   i_clamp: 1 }
+    panda_joint7:
+      pid: { p: 2000,    d: 20,    i: 0.0,    i_clamp: 1 }
+
+# JointGroupPositionController for the gripper, allows to set the position of the joints
+panda_hand_effort_position_controller:
+    type: effort_controllers/JointGroupPositionController
+    joints:
+        - panda_finger_joint1
+        - panda_finger_joint2
+    panda_finger_joint1:
+      pid: { p: 2000,   d: 20,    i: 0.0,    i_clamp: 1 }
+    panda_finger_joint2:
+      pid: { p: 2000,   d: 20,    i: 0.0,    i_clamp: 1 }
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------
+# Controllers that a follow a joint position trajectory by controlling the effort
+#------------------------------------------------------------------------------------
+
+
+# JointTrajectoryController for the arm, allows to follow a joint-space trajectory
+panda_arm_effort_trajectory_controller:
+    type: effort_controllers/JointTrajectoryController
+    joints:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+    gains:
+        panda_joint1: { p: 12000,   d: 50,    i: 0.0,    i_clamp: 10000 }
+        panda_joint2: { p: 30000,   d: 100,   i: 0.02,   i_clamp: 10000 }
+        panda_joint3: { p: 18000,   d: 50,    i: 0.01,   i_clamp: 1 }
+        panda_joint4: { p: 18000,   d: 70,    i: 0.01,   i_clamp: 10000 }
+        panda_joint5: { p: 12000,   d: 70,    i: 0.01,   i_clamp: 1 }
+        panda_joint6: { p: 7000,    d: 50,    i: 0.01,   i_clamp: 1 }
+        panda_joint7: { p: 2000,    d: 20,    i: 0.0,    i_clamp: 1 }
+
+    constraints:
+        goal_time: 2.0
+      #  stopped_velocity_tolerance: 0.02 # Override default
+      #  panda_joint1:
+      #    trajectory: 0.05               # Not enforced if unspecified
+      #    goal: 0.02                     # Not enforced if unspecified
+      #  panda_joint1:
+      #    goal: 0.01                     # Not enforced if unspecified
+
+    state_publish_rate: 100
+    #action_monitor_rate: 30            # Override default
+    #stop_trajectory_duration: 0        # Override default
+
+
+
+# JointTrajectoryController for the hand, allows to follow a joint-space trajectory
+panda_hand_effort_trajectory_controller:
+    type: effort_controllers/JointTrajectoryController
+    joints:
+        - panda_finger_joint1
+        - panda_finger_joint2
+
+    gains:
+        panda_finger_joint1: { p: 5, d: 3.0, i: 0, i_clamp: 1 }
+        panda_finger_joint2: { p: 5, d: 1.0, i: 0, i_clamp: 1 }
+
+    state_publish_rate: 25
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------
+# Controllers that a follow a joint position trajectory by controlling the effort
+#------------------------------------------------------------------------------------
+
+
+# JointTrajectoryController for the arm, allows to follow a joint-space trajectory
+panda_arm_position_trajectory_controller:
+    type: position_controllers/JointTrajectoryController
+    joints:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+    constraints:
+        goal_time: 2.0
+
+    state_publish_rate: 100
+
+
+# JointTrajectoryController for the hand, allows to follow a joint-space trajectory
+panda_hand_position_trajectory_controller:
+    type: position_controllers/JointTrajectoryController
+    joints:
+        - panda_finger_joint1
+        - panda_finger_joint2
+
+    state_publish_rate: 25
