@@ -9,5 +9,8 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>franka_ros</depend>
+  <depend>effort_controllers</depend>
+  <depend>position_controllers</depend>
+  <depend>joint_trajectory_controller</depend>
 
 </package>

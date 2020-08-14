@@ -3,31 +3,52 @@
 
 import rospy
 from controller_manager_msgs.srv import SwitchController
+from controller_manager_msgs.srv import ListControllers
 from controller_manager_msgs.srv import SwitchControllerRequest
+
+def buildServiceProxy(serviceName, msgType):
+    rospy.wait_for_service(serviceName)
+    return rospy.ServiceProxy(serviceName, msgType)
+
+
+def waitForControllersLoad(controllerNames, listControllers_service):
+    allLoaded = False
+    while not allLoaded:
+        res = listControllers_service()
+        loadedControllerNames = [c.name for c in res.controller]
+        allLoaded = True
+        for neededController in controllerNames:
+            if neededController not in loadedControllerNames:
+                rospy.logwarn("Controller "+neededController+" not available, will wait...")
+                allLoaded = False
+                break
+        if not allLoaded:
+            rospy.sleep(1)
 
 
 rospy.init_node('startup_setup_panda_sim', anonymous=True)
-controllerNames = rospy.get_param("~controllers")
-rospy.logwarn(str(controllerNames))
+controllerNames = str(rospy.get_param("~controllers"))
 controllerNames = controllerNames.strip("[ ]")
-rospy.logwarn(str(controllerNames))
-controllerNames = controllerNames.split(",")
-rospy.logwarn(str(controllerNames))
-controllerNames = [ cn.strip(' ') for cn in controllerNames]
-rospy.logwarn(str(controllerNames))
+controllerNames = controllerNames.split(", ")
+controllerNames = [ cn.strip("' ") for cn in controllerNames]
 
 
-serviceName = "/controller_manager/switch_controller"
-rospy.wait_for_service(serviceName)
 
-switchController_service   = rospy.ServiceProxy(serviceName, SwitchController)
+switchController_service = buildServiceProxy("/controller_manager/switch_controller", SwitchController)
+listControllers_service = buildServiceProxy("/controller_manager/list_controllers", ListControllers)
+
+waitForControllersLoad(controllerNames, listControllers_service)
+rospy.loginfo("All controllers available")
 
 request = SwitchControllerRequest()
 request.start_controllers = controllerNames
-request.stop_controllers = [""]
-request.strictness = 0
+request.stop_controllers = []
+request.strictness = SwitchControllerRequest.STRICT
 request.start_asap = False
 request.timeout = 0.0
 rospy.logwarn(str(request))
 response = switchController_service(request)
-rospy.logwarn(""+serviceName+" responded: '"+str(response)+"'")
+if response.ok:
+    rospy.loginfo("All Controllers started successfully")
+else:
+    rospy.logerror("Failed to start controllers")

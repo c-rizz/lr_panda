@@ -87,7 +87,7 @@
         <!-- The arguemnts: "-J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0"
              work, but not nicely -->
 
-        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.sh"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
+        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.py"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
         <!--<node name="spawn_urdf"
               pkg="gazebo_ros"
               type="spawn_model"
