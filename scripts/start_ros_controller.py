@@ -46,7 +46,7 @@ request.stop_controllers = []
 request.strictness = SwitchControllerRequest.STRICT
 request.start_asap = False
 request.timeout = 0.0
-rospy.logwarn(str(request))
+rospy.logdebug(str(request))
 response = switchController_service(request)
 if response.ok:
     rospy.loginfo("All Controllers started successfully")

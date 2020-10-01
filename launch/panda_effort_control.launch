@@ -1,7 +1,22 @@
 <launch>
-    <arg name="simulated"/>
+    <!--  Starts a gazebo simulation with a franka emika panda arm controlled with effort control.
+          This will launch both a controller for directly enforcing efforts on the joints and a
+          JointTrajectoryController controller that uses effort control to follow joint position
+          trajectories.
+
+          At startup, the JointTrajectoryController will be loaded, and the arm will move to an initial
+          joint pose. To start direct effort control you will need to switch the ocntroller with the
+          controller_manager switch_controller service.
+
+          Some movements used for the initialization would be NOT SAFE in the real, as no collision
+          checking is performed.
+    -->
+
+    <arg name="simulated" default="true"/>
     <arg name="gazebo_gui" default="true"/>
     <arg name="launch_gazebo" default="true"/>
+    <arg name="start_controllers" default="true"/>
+    <arg name="load_gripper" default="true"/>
 
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
@@ -9,26 +24,16 @@
     <arg name="pitch" default="0"/>
     <arg name="roll" default="0"/>
     <arg name="yaw" default="0"/>
-    <!-- GAZEBO arguments -->
-    <arg name="paused" default="false" />
-    <arg name="use_sim_time" default="true" />
-    <arg name="gui" default="true" />
-    <arg name="headless" default="false" />
-    <arg name="debug" default="false" />
-
-    <arg name="effort_control" default="true" /> <!-- use effort controllers on the robot's joints -->
-
 
 
     <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
-
 
     <!-- Load the controller definitions -->
     <rosparam file="$(find panda)/config/ros_controllers.yaml" command="load" />
 
 
-    <!-- Load the robot model with effort controllers -->
-    <group if="$(arg effort_control)">
+    <group if="$(arg load_gripper)">
+      <!-- Load the robot model with effort controllers -->
       <param name="robot_description"
            command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_standard_gripper.urdf.xacro'
            x:=$(arg x)
@@ -39,32 +44,37 @@
            yaw:=$(arg yaw)
            control_mode:=effort"/>
 
-          <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-                args="--stopped joint_state_controller panda_arm_effort_trajectory_controller panda_hand_effort_trajectory_controller panda_arm_effort_effort_controller panda_hand_effort_effort_controller panda_arm_effort_position_controller panda_hand_effort_position_controller" />
+      <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="--stopped joint_state_controller panda_arm_effort_trajectory_controller panda_hand_effort_trajectory_controller panda_arm_effort_effort_controller panda_hand_effort_effort_controller panda_arm_effort_position_controller panda_hand_effort_position_controller" />
 
     </group>
-    <!-- Load the robot model with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
-    <group unless="$(arg effort_control)">
+
+    <group unless="$(arg load_gripper)">
+      <!-- Load the robot model with effort controllers -->
       <param name="robot_description"
-           command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_standard_gripper.urdf.xacro'
+           command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_no_gripper.urdf.xacro'
            x:=$(arg x)
            y:=$(arg y)
            z:=$(arg z)
            roll:=$(arg roll)
            pitch:=$(arg pitch)
            yaw:=$(arg yaw)
-           control_mode:=position"/>
+           control_mode:=effort"/>
 
       <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-            args="--stopped joint_state_controller panda_arm_position_trajectory_controller panda_hand_position_trajectory_controller" />
+            args="--stopped joint_state_controller panda_arm_effort_trajectory_controller  panda_arm_effort_effort_controller  panda_arm_effort_position_controller" />
 
     </group>
 
+    <!-- Load the robot model with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
+
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
 
-    <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
-      <param name="controllers" value="['panda_arm_effort_trajectory_controller', 'joint_state_controller']"/>
-    </node>
+    <group if="$(arg start_controllers)">
+        <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
+          <param name="controllers" value="['panda_arm_effort_trajectory_controller', 'joint_state_controller']"/>
+        </node>
+    </group>
 
 
     <group if="$(arg simulated)">
@@ -74,7 +84,7 @@
             <include file="$(find gazebo_ros)/launch/empty_world.launch">
                 <arg name="debug" value="false" />
                 <arg name="gui" value="$(arg gazebo_gui)" />
-                <arg name="paused" value="false" />
+                <arg name="paused" value="true" />
                 <arg name="use_sim_time" value="true" />
             </include>
         </group>
