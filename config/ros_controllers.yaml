@@ -16,23 +16,23 @@ joint_state_controller:
 
 
 # JointGroupPositionController for the arm, allows to set the position of the joints
-panda_arm_effort_effort_controller:
+$(arg robot_name)_arm_effort_effort_controller:
     type: effort_controllers/JointGroupEffortController
     joints:
-        - panda_joint1
-        - panda_joint2
-        - panda_joint3
-        - panda_joint4
-        - panda_joint5
-        - panda_joint6
-        - panda_joint7
+        - $(arg robot_name)_joint1
+        - $(arg robot_name)_joint2
+        - $(arg robot_name)_joint3
+        - $(arg robot_name)_joint4
+        - $(arg robot_name)_joint5
+        - $(arg robot_name)_joint6
+        - $(arg robot_name)_joint7
 
 # JointGroupPositionController for the gripper, allows to set the position of the joints
-panda_hand_effort_effort_controller:
+$(arg robot_name)_hand_effort_effort_controller:
     type: effort_controllers/JointGroupEffortController
     joints:
-        - panda_finger_joint1
-        - panda_finger_joint2
+        - $(arg robot_name)_finger_joint1
+        - $(arg robot_name)_finger_joint2
 
 
 
@@ -46,40 +46,40 @@ panda_hand_effort_effort_controller:
 
 
 # JointGroupPositionController for the arm, allows to set the position of the joints
-panda_arm_effort_position_controller:
+$(arg robot_name)_arm_effort_position_controller:
     type: effort_controllers/JointGroupPositionController
     joints:
-        - panda_joint1
-        - panda_joint2
-        - panda_joint3
-        - panda_joint4
-        - panda_joint5
-        - panda_joint6
-        - panda_joint7
-    panda_joint1:
+        - $(arg robot_name)_joint1
+        - $(arg robot_name)_joint2
+        - $(arg robot_name)_joint3
+        - $(arg robot_name)_joint4
+        - $(arg robot_name)_joint5
+        - $(arg robot_name)_joint6
+        - $(arg robot_name)_joint7
+    $(arg robot_name)_joint1:
       pid: { p: 12000,   d: 50,    i: 0.0,    i_clamp: 10000 }
-    panda_joint2:
+    $(arg robot_name)_joint2:
       pid: { p: 30000,   d: 100,   i: 0.02,   i_clamp: 10000 }
-    panda_joint3:
+    $(arg robot_name)_joint3:
       pid: { p: 18000,   d: 50,    i: 0.01,   i_clamp: 1 }
-    panda_joint4:
+    $(arg robot_name)_joint4:
       pid: { p: 18000,   d: 70,    i: 0.01,   i_clamp: 10000 }
-    panda_joint5:
+    $(arg robot_name)_joint5:
       pid: { p: 12000,   d: 70,    i: 0.01,   i_clamp: 1 }
-    panda_joint6:
+    $(arg robot_name)_joint6:
       pid: { p: 7000,    d: 50,    i: 0.01,   i_clamp: 1 }
-    panda_joint7:
+    $(arg robot_name)_joint7:
       pid: { p: 2000,    d: 20,    i: 0.0,    i_clamp: 1 }
 
 # JointGroupPositionController for the gripper, allows to set the position of the joints
-panda_hand_effort_position_controller:
+$(arg robot_name)_hand_effort_position_controller:
     type: effort_controllers/JointGroupPositionController
     joints:
-        - panda_finger_joint1
-        - panda_finger_joint2
-    panda_finger_joint1:
+        - $(arg robot_name)_finger_joint1
+        - $(arg robot_name)_finger_joint2
+    $(arg robot_name)_finger_joint1:
       pid: { p: 2000,   d: 20,    i: 0.0,    i_clamp: 1 }
-    panda_finger_joint2:
+    $(arg robot_name)_finger_joint2:
       pid: { p: 2000,   d: 20,    i: 0.0,    i_clamp: 1 }
 
 
@@ -94,33 +94,33 @@ panda_hand_effort_position_controller:
 
 
 # JointTrajectoryController for the arm, allows to follow a joint-space trajectory
-panda_arm_effort_trajectory_controller:
+$(arg robot_name)_arm_effort_trajectory_controller:
     type: effort_controllers/JointTrajectoryController
     joints:
-        - panda_joint1
-        - panda_joint2
-        - panda_joint3
-        - panda_joint4
-        - panda_joint5
-        - panda_joint6
-        - panda_joint7
+        - $(arg robot_name)_joint1
+        - $(arg robot_name)_joint2
+        - $(arg robot_name)_joint3
+        - $(arg robot_name)_joint4
+        - $(arg robot_name)_joint5
+        - $(arg robot_name)_joint6
+        - $(arg robot_name)_joint7
 
     gains:
-        panda_joint1: { p: 12000,   d: 50,    i: 0.0,    i_clamp: 10000 }
-        panda_joint2: { p: 30000,   d: 100,   i: 0.02,   i_clamp: 10000 }
-        panda_joint3: { p: 18000,   d: 50,    i: 0.01,   i_clamp: 1 }
-        panda_joint4: { p: 18000,   d: 70,    i: 0.01,   i_clamp: 10000 }
-        panda_joint5: { p: 12000,   d: 70,    i: 0.01,   i_clamp: 1 }
-        panda_joint6: { p: 7000,    d: 50,    i: 0.01,   i_clamp: 1 }
-        panda_joint7: { p: 2000,    d: 20,    i: 0.0,    i_clamp: 1 }
+        $(arg robot_name)_joint1: { p: 12000,   d: 50,    i: 0.0,    i_clamp: 10000 }
+        $(arg robot_name)_joint2: { p: 30000,   d: 100,   i: 0.02,   i_clamp: 10000 }
+        $(arg robot_name)_joint3: { p: 18000,   d: 50,    i: 0.01,   i_clamp: 1 }
+        $(arg robot_name)_joint4: { p: 18000,   d: 70,    i: 0.01,   i_clamp: 10000 }
+        $(arg robot_name)_joint5: { p: 12000,   d: 70,    i: 0.01,   i_clamp: 1 }
+        $(arg robot_name)_joint6: { p: 7000,    d: 50,    i: 0.01,   i_clamp: 1 }
+        $(arg robot_name)_joint7: { p: 2000,    d: 20,    i: 0.0,    i_clamp: 1 }
 
     constraints:
         goal_time: 2.0
       #  stopped_velocity_tolerance: 0.02 # Override default
-      #  panda_joint1:
+      #  $(arg robot_name)_joint1:
       #    trajectory: 0.05               # Not enforced if unspecified
       #    goal: 0.02                     # Not enforced if unspecified
-      #  panda_joint1:
+      #  $(arg robot_name)_joint1:
       #    goal: 0.01                     # Not enforced if unspecified
 
     state_publish_rate: 100
@@ -130,15 +130,15 @@ panda_arm_effort_trajectory_controller:
 
 
 # JointTrajectoryController for the hand, allows to follow a joint-space trajectory
-panda_hand_effort_trajectory_controller:
+$(arg robot_name)_hand_effort_trajectory_controller:
     type: effort_controllers/JointTrajectoryController
     joints:
-        - panda_finger_joint1
-        - panda_finger_joint2
+        - $(arg robot_name)_finger_joint1
+        - $(arg robot_name)_finger_joint2
 
     gains:
-        panda_finger_joint1: { p: 5, d: 3.0, i: 0, i_clamp: 1 }
-        panda_finger_joint2: { p: 5, d: 1.0, i: 0, i_clamp: 1 }
+        $(arg robot_name)_finger_joint1: { p: 5, d: 3.0, i: 0, i_clamp: 1 }
+        $(arg robot_name)_finger_joint2: { p: 5, d: 1.0, i: 0, i_clamp: 1 }
 
     state_publish_rate: 25
 
@@ -154,16 +154,16 @@ panda_hand_effort_trajectory_controller:
 
 
 # JointTrajectoryController for the arm, allows to follow a joint-space trajectory
-panda_arm_position_trajectory_controller:
+$(arg robot_name)_arm_position_trajectory_controller:
     type: position_controllers/JointTrajectoryController
     joints:
-        - panda_joint1
-        - panda_joint2
-        - panda_joint3
-        - panda_joint4
-        - panda_joint5
-        - panda_joint6
-        - panda_joint7
+        - $(arg robot_name)_joint1
+        - $(arg robot_name)_joint2
+        - $(arg robot_name)_joint3
+        - $(arg robot_name)_joint4
+        - $(arg robot_name)_joint5
+        - $(arg robot_name)_joint6
+        - $(arg robot_name)_joint7
 
     constraints:
         goal_time: 2.0
@@ -172,10 +172,10 @@ panda_arm_position_trajectory_controller:
 
 
 # JointTrajectoryController for the hand, allows to follow a joint-space trajectory
-panda_hand_position_trajectory_controller:
+$(arg robot_name)_hand_position_trajectory_controller:
     type: position_controllers/JointTrajectoryController
     joints:
-        - panda_finger_joint1
-        - panda_finger_joint2
+        - $(arg robot_name)_finger_joint1
+        - $(arg robot_name)_finger_joint2
 
     state_publish_rate: 25

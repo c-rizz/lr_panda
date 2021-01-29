@@ -1,0 +1,130 @@
+<launch>
+    <!--  Starts a gazebo simulation with a franka emika panda arm controlled with effort control.
+          This will launch both a controller for directly enforcing efforts on the joints and a
+          JointTrajectoryController controller that uses effort control to follow joint position
+          trajectories.
+
+          At startup, the JointTrajectoryController will be loaded, and the arm will move to an initial
+          joint pose. To start direct effort control you will need to switch the ocntroller with the
+          controller_manager switch_controller service.
+
+          Some movements used for the initialization would be NOT SAFE in the real, as no collision
+          checking is performed.
+    -->
+
+    <arg name="simulated" default="true"/>
+    <arg name="gazebo_gui" default="true"/>
+    <arg name="launch_gazebo" default="true"/>
+    <arg name="start_controllers" default="true"/>
+    <arg name="load_gripper" default="true"/>
+
+    <arg name="x" default="0"/>
+    <arg name="y" default="0"/>
+    <arg name="z" default="0"/>
+    <arg name="pitch" default="0"/>
+    <arg name="roll" default="0"/>
+    <arg name="yaw" default="0"/>
+
+    <arg name="robot_name" default="panda"/>
+    <arg name="control_mode" default="effort"/>
+
+
+    <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
+
+    <!-- Load the controller definitions -->
+    <rosparam file="$(find panda)/config/ros_controllers.yaml" command="load" subst_value="True"/>
+
+
+    <param  name="robot_description"
+            command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_generic.urdf.xacro'
+            x:=$(arg x)
+            y:=$(arg y)
+            z:=$(arg z)
+            roll:=$(arg roll)
+            pitch:=$(arg pitch)
+            yaw:=$(arg yaw)
+            control_mode:=$(arg control_mode)
+            load_hand:=$(arg load_gripper)
+            robot_name:=$(arg robot_name)"/>
+
+
+
+    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper'))"
+          name="controllers_to_load"
+          value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller"/>
+    <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper'))"
+          name="controllers_to_load"
+          value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller  $(arg robot_name)_hand_effort_effort_controller $(arg robot_name)_hand_effort_position_controller  $(arg robot_name)_hand_effort_trajectory_controller"/>
+    <arg  if="$(eval arg('control_mode') == 'position' and not arg('load_gripper'))"
+          name="controllers_to_load"
+          value="joint_state_controller $(arg robot_name)_arm_position_trajectory_controller"/>
+    <arg  if="$(eval arg('control_mode') == 'position' and arg('load_gripper'))"
+          name="controllers_to_load"
+          value="joint_state_controller $(arg robot_name)_arm_position_trajectory_controller $(arg robot_name)_hand_position_trajectory_controller"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+          args="--stopped $(arg controllers_to_load)" />
+
+    <!-- Load the robot model with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+
+
+    <group if="$(arg start_controllers)">
+      <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller']"/>
+      <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller', '$(arg robot_name)_hand_effort_trajectory_controller']"/>
+      <arg  if="$(eval arg('control_mode') == 'position' and not arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['joint_state_controller', '$(arg robot_name)_arm_position_trajectory_controller']"/>
+      <arg  if="$(eval arg('control_mode') == 'position' and arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['joint_state_controller', '$(arg robot_name)_arm_position_trajectory_controller', '$(arg robot_name)_hand_position_trajectory_controller']"/>
+
+      <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
+          <param name="controllers" value="$(arg controllers_to_start)"/>
+      </node>
+    </group>
+
+
+    <group if="$(arg simulated)">
+        <param name="/use_sim_time" value="true"/>
+        <group if="$(arg launch_gazebo)">
+            <!--launch GAZEBO with own world configuration -->
+            <include file="$(find gazebo_ros)/launch/empty_world.launch">
+                <arg name="debug" value="false" />
+                <arg name="gui" value="$(arg gazebo_gui)" />
+                <arg name="paused" value="true" />
+                <arg name="use_sim_time" value="true" />
+            </include>
+        </group>
+
+
+        <node name="spawn_urdf"
+              pkg="gazebo_ros"
+              type="spawn_model"
+              args="-param robot_description -urdf -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)" />
+        <!-- The arguemnts: "-J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0"
+             work, but not nicely -->
+
+        <arg  if="$(eval arg('control_mode') == 'effort')"
+              name="trajectory_controller_name"
+              value="$(arg robot_name)_arm_effort_trajectory_controller"/>
+        <arg  if="$(eval arg('control_mode') == 'position')"
+              name="trajectory_controller_name"
+              value="$(arg robot_name)_arm_position_trajectory_controller"/>
+        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.py"  output="screen"
+              args="--traj_controller_name=$(arg trajectory_controller_name) --robot_name=$(arg robot_name)"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
+        <!--<node name="spawn_urdf"
+              pkg="gazebo_ros"
+              type="spawn_model"
+              args="-param robot_description -urdf -model panda" />-->
+    </group>
+    <group unless="$(arg simulated)">
+        <!-- TODO launch real robot -->
+    </group>
+
+</launch>

@@ -42,10 +42,11 @@
            roll:=$(arg roll)
            pitch:=$(arg pitch)
            yaw:=$(arg yaw)
-           control_mode:=effort"/>
+           control_mode:=position"/>
 
       <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-            args="--stopped joint_state_controller panda_arm_effort_trajectory_controller panda_hand_effort_trajectory_controller panda_arm_effort_effort_controller panda_hand_effort_effort_controller panda_arm_effort_position_controller panda_hand_effort_position_controller" />
+            args="--stopped joint_state_controller panda_arm_position_trajectory_controller
+                                                   panda_hand_position_trajectory_controller" />
 
     </group>
 
@@ -62,7 +63,7 @@
            control_mode:=effort"/>
 
       <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-            args="--stopped joint_state_controller panda_arm_effort_trajectory_controller  panda_arm_effort_effort_controller  panda_arm_effort_position_controller" />
+            args="--stopped joint_state_controller panda_arm_position_trajectory_controller  panda_hand_position_trajectory_controller" />
 
     </group>
 
@@ -72,7 +73,7 @@
 
     <group if="$(arg start_controllers)">
         <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
-          <param name="controllers" value="['panda_arm_effort_trajectory_controller', 'joint_state_controller']"/>
+          <param name="controllers" value="['panda_arm_position_trajectory_controller', 'joint_state_controller']"/>
         </node>
     </group>
 
@@ -86,6 +87,8 @@
                 <arg name="gui" value="$(arg gazebo_gui)" />
                 <arg name="paused" value="true" />
                 <arg name="use_sim_time" value="true" />
+                <arg name="physics" value="bullet"/>
+                <arg name="verbose" value="True"/>
             </include>
         </group>
 
@@ -97,7 +100,9 @@
         <!-- The arguemnts: "-J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0"
              work, but not nicely -->
 
-        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.py"  output="screen"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
+        <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
+        <node name="move_to_start_pose" pkg="panda" type="move_to_start_pose_raw.py" output="screen"
+              args="--traj_controller_name=panda_arm_position_trajectory_controller"/>
         <!--<node name="spawn_urdf"
               pkg="gazebo_ros"
               type="spawn_model"
