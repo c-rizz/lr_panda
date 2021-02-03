@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:macro name="panda_arm_generic" params="x y z roll pitch yaw connected_to control_mode robot_name load_hand">
+
+    <xacro:include filename="$(find panda)/urdf/panda_arm.xacro"/>
+    <xacro:include filename="$(find panda)/urdf/standard_gripper.xacro"/>
+
+    <!-- for simulation -->
+    <xacro:include filename="$(find panda)/urdf/panda.gazebo.xacro"/>
+    <xacro:include filename="$(find panda)/urdf/panda_control.xacro"/>
+    <!-- end for simulation -->
+
+    <xacro:panda_arm xyz="${x} ${y} ${z}" rpy="${roll} ${pitch} ${yaw}"
+                     connected_to="${connected_to}" arm_id="${robot_name}"/>
+    <xacro:if value="${load_hand}">
+      <xacro:hand ns="${robot_name}" rpy="0 0 ${-pi/4}" connected_to="${robot_name}_link8" safety_distance="0.03"/>
+    </xacro:if>
+
+    <!-- for simulation -->
+    <xacro:panda_gazebo arm_id="${robot_name}"/>
+    <xacro:panda_control arm_id="${robot_name}" load_hand="${load_hand}" control_mode="${control_mode}" />
+    <!-- end for simulation -->
+
+  </xacro:macro>
+</robot>

@@ -39,13 +39,16 @@ def waitForControllersStart(controllerNames, listControllers_service):
             rospy.sleep(1)
 
 if __name__ == "__main__":
+    rospy.init_node('move_to_joint_pose_raw', anonymous=True, log_level=rospy.INFO)
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj_controller_name", required=False, default="panda_arm_effort_trajectory_controller", type=str, help="Topic namespace name for the trajectory contorller to use")
     ap.add_argument("--robot_name", required=False, default="panda", type=str, help="Topic namespace name for the trajectory contorller to use")
+    ap.add_argument('--joint_pose', nargs='+', type=float)
     args = vars(ap.parse_known_args()[0])
-    rospy.init_node('move_to_start_pose', anonymous=True, log_level=rospy.INFO)
 
     controllerNamespace = args["traj_controller_name"]
+    assert len(args["joint_pose"])==7, "joint_pose should be composed of 7 floats, it currently is "+str(args["joint_pose"])
+
 
     controllerActionName = "/"+controllerNamespace+"/follow_joint_trajectory"
     controllerClient = actionlib.SimpleActionClient(controllerActionName, FollowJointTrajectoryAction)
@@ -64,8 +67,11 @@ if __name__ == "__main__":
                                     args["robot_name"]+'_joint5',
                                     args["robot_name"]+'_joint6',
                                     args["robot_name"]+'_joint7']
+
+    #print("args['joint_pose'] = "+str(args["joint_pose"]))
+
     point = JointTrajectoryPoint()
-    point.positions = [0, 0, 0, -1, 0, 1, 0]
+    point.positions = args["joint_pose"]
     point.effort = [0, 0, 0, 0, 0, 0, 0]
     point.time_from_start = rospy.Duration(10)
     goal.trajectory.points = [point]
