@@ -10,6 +10,9 @@
   <xacro:arg name="control_mode" default="effort" />
 
   <xacro:include filename="$(find panda)/urdf/panda_arm_generic.xacro"/>
+
+  <link name="world"/>
+  
   <xacro:panda_arm_generic  x="$(arg x)"
                             y="$(arg y)"
                             z="$(arg z)"
