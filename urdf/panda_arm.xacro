@@ -22,7 +22,7 @@
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://${description_pkg}/meshes/collision/link0.stl"/>
+          <mesh filename="package://${description_pkg}/meshes/visual/link0.dae"/>
         </geometry>
       </collision>
 
@@ -42,7 +42,7 @@
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://${description_pkg}/meshes/collision/link1.stl"/>
+          <mesh filename="package://${description_pkg}/meshes/visual/link1.dae"/>
         </geometry>
       </collision>
 
