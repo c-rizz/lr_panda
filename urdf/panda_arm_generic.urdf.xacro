@@ -9,7 +9,7 @@
   <xacro:arg name="connected_to" default="world" />
   <xacro:arg name="control_mode" default="effort" />
 
-  <xacro:include filename="$(find panda)/urdf/panda_arm_generic.xacro"/>
+  <xacro:include filename="$(find lr_panda)/urdf/panda_arm_generic.xacro"/>
 
   <link name="world"/>
   

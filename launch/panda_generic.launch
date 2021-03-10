@@ -36,11 +36,11 @@
     <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
     <!-- Load the controller definitions -->
-    <rosparam file="$(find panda)/config/ros_controllers.yaml" command="load" subst_value="True"/>
+    <rosparam file="$(find lr_panda)/config/ros_controllers.yaml" command="load" subst_value="True"/>
 
     <group if="$(arg load_robot_description)">
       <param  name="$(arg robot_name)_description"
-              command="$(find xacro)/xacro '$(find panda)/urdf/panda_arm_generic.urdf.xacro'
+              command="$(find xacro)/xacro '$(find lr_panda)/urdf/panda_arm_generic.urdf.xacro'
               x:=$(arg x)
               y:=$(arg y)
               z:=$(arg z)
@@ -88,7 +88,7 @@
             name="controllers_to_start"
             value="['joint_state_controller', '$(arg robot_name)_arm_position_trajectory_controller', '$(arg robot_name)_hand_position_trajectory_controller']"/>
 
-      <node name="start_ros_controller" pkg="panda" type="start_ros_controller.py">
+      <node name="start_ros_controller" pkg="lr_panda" type="start_ros_controller.py">
           <param name="controllers" value="$(arg controllers_to_start)"/>
       </node>
     </group>
@@ -120,7 +120,7 @@
         <arg  if="$(eval arg('control_mode') == 'position')"
               name="trajectory_controller_name"
               value="$(arg robot_name)_arm_position_trajectory_controller"/>
-        <node name="move_to_joint_pose_raw" pkg="panda" type="move_to_joint_pose_raw.py"  output="screen"
+        <node name="move_to_joint_pose_raw" pkg="lr_panda" type="move_to_joint_pose_raw.py"  output="screen"
               args="--traj_controller_name=$(arg trajectory_controller_name) --robot_name=$(arg robot_name) --joint_pose $(arg start_joint_pose) --"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
 
 
