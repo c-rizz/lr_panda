@@ -12,5 +12,6 @@
   <depend>effort_controllers</depend>
   <depend>position_controllers</depend>
   <depend>joint_trajectory_controller</depend>
+  <depend>joint_state_controller</depend>
 
 </package>

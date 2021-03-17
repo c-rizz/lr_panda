@@ -1,16 +1,11 @@
 <launch>
-    <!--  Starts a gazebo simulation with a franka emika panda arm controlled with effort control.
-          This will launch both a controller for directly enforcing efforts on the joints and a
-          JointTrajectoryController controller that uses effort control to follow joint position
-          trajectories.
-
-          At startup, the JointTrajectoryController will be loaded, and the arm will move to an initial
-          joint pose. To start direct effort control you will need to switch the ocntroller with the
-          controller_manager switch_controller service.
-
-          Some movements used for the initialization would be NOT SAFE in the real, as no collision
-          checking is performed.
+    <!--  Starts up either a real o simulated panda arm.
+          The low level-control of the arm can be performed with either effort or position control.
+          
+          In the imulation the arm will be spawned and moved to an initial joint pose.
     -->
+
+    <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${walltime}] [${node}]: ${message}" />
 
     <arg name="simulated" default="true"/>
     <arg name="gazebo_gui" default="true"/>
@@ -18,6 +13,7 @@
     <arg name="start_controllers" default="true"/>
     <arg name="load_gripper" default="true"/>
     <arg name="load_robot_description" default="true"/>
+    <arg name="robot_ip" default="0.0.0.0"/> <!-- Only needed in the real -->
 
     <arg name="x" default="0"/>
     <arg name="y" default="0"/>
@@ -27,6 +23,12 @@
     <arg name="yaw" default="0"/>
 
     <arg name="robot_name" default="panda"/>
+
+     <!-- control_mode indicates what do the ros controller send as output to control the robot.
+          Using effort gives most control to the ros controller.
+          Using position abstracts the lower-level from the ros controller, which will just assume the robot goes to that position.
+          In the real position means we delegate the position-to-torque control to franka, in the simulation instead we just trust 
+          the simulator. The simulator may just set the joint position to the required one in an unrealistic way. -->
     <arg name="control_mode" default="effort"/>
 
     <arg name="start_joint_pose" default="0 0 0 -1 0 1 0"/>
@@ -68,8 +70,6 @@
 
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
           args="--stopped $(arg controllers_to_load)" />
-
-    <!-- Load the robot model with position controllers, not realistic, the position of the joints are enforced directly by the simulator disregarding physics-->
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
 
@@ -123,10 +123,24 @@
         <node name="move_to_joint_pose_raw" pkg="lr_panda" type="move_to_joint_pose_raw.py"  output="screen"
               args="--traj_controller_name=$(arg trajectory_controller_name) --robot_name=$(arg robot_name) --joint_pose $(arg start_joint_pose) --"/> <!-- NOTE: NOT SAFE IN THE REAL WORLD, NO COLLISION CHECKS! -->
 
-
     </group>
     <group unless="$(arg simulated)">
-        <!-- TODO launch real robot -->
+      <group if="$(eval arg('control_mode') == 'position')">
+
+            <include file="$(find franka_gripper)/launch/franka_gripper.launch" if="$(arg load_gripper)">
+                  <arg name="robot_ip" value="$(arg robot_ip)" />
+            </include>
+
+            <node name="franka_control" pkg="franka_control" type="franka_control_node" output="screen" required="true">
+                  <rosparam command="load" file="$(find franka_control)/config/franka_control_node.yaml" />
+                  <param name="robot_ip" value="$(arg robot_ip)" />
+            </node>
+      </group>
+      <group if="$(eval arg('control_mode') != 'position')">
+            <node name="start_ros_controller" pkg="lr_panda" type="start_ros_controller.py">
+                  <param name="msg" value="panda_generic: Only position control is currently supported in the real"/>
+            </node>
+      </group>
     </group>
 
 </launch>
