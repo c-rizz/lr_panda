@@ -1,8 +1,8 @@
 <launch>
-    <!--  Starts up either a real o simulated panda arm.
-          The low level-control of the arm can be performed with either effort or position control.
-          
-          In the imulation the arm will be spawned and moved to an initial joint pose.
+    <!--Starts up either a real o simulated panda arm.
+        The low level-control of the arm can be performed with either effort or position control.
+        
+        In the imulation the arm will be spawned and moved to an initial joint pose.
     -->
 
     <env name="ROSCONSOLE_FORMAT" value="[${severity}] [${walltime}] [${node}]: ${message}" />
@@ -34,6 +34,18 @@
     <arg name="start_joint_pose" default="0 0 0 -1 0 1 0"/>
 
 
+
+
+    <group if="$(eval arg('control_mode') == 'effort' and not arg('simulated'))">
+        <node name="$(anon print_error)" pkg="lr_panda" type="print_error.py" required="true">
+            <param name="msg" value="panda_generic: only the position hardware interface is currently supported in the real. control_mode must be 'position'"/>
+        </node>
+    </group>
+
+
+
+
+
     <remap from="robot_description" to="$(arg robot_name)_description"/>
     <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
@@ -55,10 +67,11 @@
     </group>
 
 
-    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper'))"
+    <!-- Only loads effort-based conttrollers if in simulation -->
+    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper') and arg('simulated'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller"/>
-    <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper'))"
+    <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper') and arg('simulated'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller  $(arg robot_name)_hand_effort_effort_controller $(arg robot_name)_hand_effort_position_controller  $(arg robot_name)_hand_effort_trajectory_controller"/>
     <arg  if="$(eval arg('control_mode') == 'position' and not arg('load_gripper'))"
@@ -125,22 +138,17 @@
 
     </group>
     <group unless="$(arg simulated)">
-      <group if="$(eval arg('control_mode') == 'position')">
+        <group if="$(eval arg('control_mode') == 'position')">
 
             <include file="$(find franka_gripper)/launch/franka_gripper.launch" if="$(arg load_gripper)">
-                  <arg name="robot_ip" value="$(arg robot_ip)" />
+                <arg name="robot_ip" value="$(arg robot_ip)" />
             </include>
 
             <node name="franka_control" pkg="franka_control" type="franka_control_node" output="screen" required="true">
-                  <rosparam command="load" file="$(find franka_control)/config/franka_control_node.yaml" />
-                  <param name="robot_ip" value="$(arg robot_ip)" />
+                <rosparam command="load" file="$(find franka_control)/config/franka_control_node.yaml" />
+                <param name="robot_ip" value="$(arg robot_ip)" />
             </node>
-      </group>
-      <group if="$(eval arg('control_mode') != 'position')">
-            <node name="start_ros_controller" pkg="lr_panda" type="start_ros_controller.py">
-                  <param name="msg" value="panda_generic: Only position control is currently supported in the real"/>
-            </node>
-      </group>
+        </group>
     </group>
 
 </launch>
