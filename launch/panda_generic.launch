@@ -68,6 +68,9 @@
 
 
     <!-- Only loads effort-based conttrollers if in simulation -->
+    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('simulated'))"
+          name="controllers_to_load"
+          value="joint_state_controller"/>
     <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper') and arg('simulated'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller"/>
