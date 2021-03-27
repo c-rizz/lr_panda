@@ -17,7 +17,7 @@
       </visual>
       <collision>
         <geometry>
-          <mesh filename="package://franka_description/meshes/collision/hand.stl"/>
+          <mesh filename="package://franka_description/meshes/visual/hand.dae"/>
         </geometry>
       </collision>
 
@@ -36,12 +36,23 @@
         </geometry>
       </visual>
 
+      <collision>
+        <geometry>
+          <mesh filename="package://franka_description/meshes/visual/finger.dae"/>
+        </geometry>
+      </collision>
+
       <!-- for simulation -->
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <mass value="0.68" />
         <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1" />
       </inertial>
+
+      <gazebo reference="${ns}_leftfinger">
+        <mu1 value="100"/>
+        <mu2 value="100"/>
+      </gazebo>
       <!-- end for simulation -->
     </link>
     <link name="${ns}_rightfinger">
@@ -51,6 +62,12 @@
           <mesh filename="package://franka_description/meshes/visual/finger.dae"/>
         </geometry>
       </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 ${pi}"/>
+        <geometry>
+          <mesh filename="package://franka_description/meshes/visual/finger.dae"/>
+        </geometry>
+      </collision>
 
       <!-- for simulation -->
       <inertial>
@@ -58,6 +75,10 @@
         <mass value="0.68" />
         <inertia ixx="0.1" ixy="0.0" ixz="0.0" iyy="0.1" iyz="0.0" izz="0.1" />
       </inertial>
+      <gazebo reference="${ns}_rightfinger">
+        <mu1 value="100"/>
+        <mu2 value="100"/>
+      </gazebo>
       <!-- end for simulation -->
    </link>
     <joint name="${ns}_finger_joint1" type="prismatic">

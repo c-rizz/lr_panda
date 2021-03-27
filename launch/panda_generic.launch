@@ -119,6 +119,7 @@
                 <arg name="gui" value="$(arg gazebo_gui)" />
                 <arg name="paused" value="false" />
                 <arg name="use_sim_time" value="true" />
+                <arg name="verbose" value="true" />
             </include>
         </group>
 
