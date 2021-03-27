@@ -68,41 +68,79 @@
 
 
     <!-- Only loads effort-based conttrollers if in simulation -->
-    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('simulated'))"
+    <arg  if="$(eval not arg('simulated') and arg('control_mode') == 'effort')"
           name="controllers_to_load"
-          value="joint_state_controller"/>
-    <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper') and arg('simulated'))"
+          value=""/>
+    
+    <arg  if="$(eval not arg('simulated') and    arg('control_mode') == 'position'  and not arg('load_gripper'))"
+          name="controllers_to_load"
+          value="$(arg robot_name)_arm_position_trajectory_controller"/>
+    
+    <arg  if="$(eval not arg('simulated') and    arg('control_mode') == 'position'  and arg('load_gripper'))"
+          name="controllers_to_load"
+          value="$(arg robot_name)_arm_position_trajectory_controller"/>
+          
+    <arg  if="$(eval     arg('simulated') and    arg('control_mode') == 'effort'    and not arg('load_gripper'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller"/>
-    <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper') and arg('simulated'))"
+    
+    <arg  if="$(eval     arg('simulated') and    arg('control_mode') == 'effort'    and arg('load_gripper'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_effort_trajectory_controller $(arg robot_name)_arm_effort_effort_controller $(arg robot_name)_arm_effort_position_controller  $(arg robot_name)_hand_effort_effort_controller $(arg robot_name)_hand_effort_position_controller  $(arg robot_name)_hand_effort_trajectory_controller"/>
-    <arg  if="$(eval arg('control_mode') == 'position' and not arg('load_gripper'))"
+    
+    <arg  if="$(eval     arg('simulated') and    arg('control_mode') == 'position'  and not arg('load_gripper'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_position_trajectory_controller"/>
-    <arg  if="$(eval arg('control_mode') == 'position' and arg('load_gripper'))"
+    
+    <arg  if="$(eval     arg('simulated') and    arg('control_mode') == 'position'  and arg('load_gripper'))"
           name="controllers_to_load"
           value="joint_state_controller $(arg robot_name)_arm_position_trajectory_controller $(arg robot_name)_hand_position_trajectory_controller"/>
 
+
+
+
+
+
     <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-          args="--stopped $(arg controllers_to_load)" />
+          args="--stopped $(arg controllers_to_load)">
+    </node>
 
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen"/>
 
 
     <group if="$(arg start_controllers)">
-      <arg  if="$(eval arg('control_mode') == 'effort' and not arg('load_gripper'))"
+      <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'effort' and not arg('load_gripper'))"
             name="controllers_to_start"
             value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller']"/>
-      <arg  if="$(eval arg('control_mode') == 'effort' and arg('load_gripper'))"
+      
+      <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'effort' and arg('load_gripper'))"
             name="controllers_to_start"
             value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller', '$(arg robot_name)_hand_effort_trajectory_controller']"/>
-      <arg  if="$(eval arg('control_mode') == 'position' and not arg('load_gripper'))"
+      
+      <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'position' and not arg('load_gripper'))"
             name="controllers_to_start"
             value="['joint_state_controller', '$(arg robot_name)_arm_position_trajectory_controller']"/>
-      <arg  if="$(eval arg('control_mode') == 'position' and arg('load_gripper'))"
+
+      <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'position' and arg('load_gripper'))"
             name="controllers_to_start"
             value="['joint_state_controller', '$(arg robot_name)_arm_position_trajectory_controller', '$(arg robot_name)_hand_position_trajectory_controller']"/>
+
+
+      <arg  if="$(eval not arg('simulated') and arg('control_mode') == 'effort' and not arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['$(arg robot_name)_arm_effort_trajectory_controller']"/>
+      
+      <arg  if="$(eval not arg('simulated') and arg('control_mode') == 'effort' and arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['$(arg robot_name)_arm_effort_trajectory_controller', '$(arg robot_name)_hand_effort_trajectory_controller']"/>
+      
+      <arg  if="$(eval not arg('simulated') and arg('control_mode') == 'position' and not arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['$(arg robot_name)_arm_position_trajectory_controller']"/>
+
+      <arg  if="$(eval not arg('simulated') and arg('control_mode') == 'position' and arg('load_gripper'))"
+            name="controllers_to_start"
+            value="['$(arg robot_name)_arm_position_trajectory_controller']"/>
 
       <node name="start_ros_controller" pkg="lr_panda" type="start_ros_controller.py">
           <param name="controllers" value="$(arg controllers_to_start)"/>
@@ -151,6 +189,14 @@
             <node name="franka_control" pkg="franka_control" type="franka_control_node" output="screen" required="true">
                 <rosparam command="load" file="$(find franka_control)/config/franka_control_node.yaml" />
                 <param name="robot_ip" value="$(arg robot_ip)" />
+            </node>
+
+            <rosparam command="load" file="$(find franka_control)/config/default_controllers.yaml" />
+            <node name="state_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="franka_state_controller"/>
+            <node name="joint_state_publisher" type="joint_state_publisher" pkg="joint_state_publisher" output="screen">
+                  <rosparam if="$(arg load_gripper)" param="source_list">[franka_state_controller/joint_states, franka_gripper/joint_states] </rosparam>
+                  <rosparam unless="$(arg load_gripper)" param="source_list">[franka_state_controller/joint_states] </rosparam>
+                  <param name="rate" value="30"/>
             </node>
         </group>
     </group>
