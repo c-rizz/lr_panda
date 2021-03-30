@@ -115,7 +115,7 @@
       
       <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'effort' and arg('load_gripper'))"
             name="controllers_to_start"
-            value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller', '$(arg robot_name)_hand_effort_trajectory_controller']"/>
+            value="['joint_state_controller', '$(arg robot_name)_arm_effort_trajectory_controller', '$(arg robot_name)_hand_effort_effort_controller']"/>
       
       <arg  if="$(eval     arg('simulated') and arg('control_mode') == 'position' and not arg('load_gripper'))"
             name="controllers_to_start"
