@@ -8,7 +8,17 @@
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <!-- <depend>franka_ros</depend> Dependency removed as not present in ros repo yet, should be available soon --> 
+  
+  <!-- franka_ros dependency temporarily removed as not present in ros repo yet, should be available soon --> 
+  <!-- once available re-add it and remove other franka dependencies -->-->
+  <!-- <depend>franka_ros</depend> -->
+  <depend>franka_control</depend>
+  <depend>franka_gripper</depend>
+  <depend>franka_description</depend>
+  <depend>franka_hw</depend>
+  <depend>franka_msgs</depend>
+  <depend>franka_visualization</depend>
+
   <depend>effort_controllers</depend>
   <depend>position_controllers</depend>
   <depend>joint_trajectory_controller</depend>
