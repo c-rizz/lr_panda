@@ -149,7 +149,7 @@ $(arg robot_name)_hand_effort_trajectory_controller:
 
 
 #------------------------------------------------------------------------------------
-# Controllers that a follow a joint position trajectory by controlling the effort
+# Controllers that a follow a joint position trajectory by controlling the positions
 #------------------------------------------------------------------------------------
 
 
@@ -165,8 +165,30 @@ $(arg robot_name)_arm_position_trajectory_controller:
         - $(arg robot_name)_joint6
         - $(arg robot_name)_joint7
 
+
     constraints:
-        goal_time: 2.0
+        goal_time: 1.0
+        $(arg robot_name)_joint1:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint2:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint3:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint4:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint5:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint6:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
+        $(arg robot_name)_joint7:
+          trajectory: 0.05               # Not enforced if unspecified
+          goal: 0.01                     # Not enforced if unspecified
 
     state_publish_rate: 100
 
