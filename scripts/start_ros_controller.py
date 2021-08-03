@@ -5,14 +5,26 @@ import rospy
 from controller_manager_msgs.srv import SwitchController
 from controller_manager_msgs.srv import ListControllers
 from controller_manager_msgs.srv import SwitchControllerRequest
+from rospy.exceptions import ROSException
 
 def buildServiceProxy(serviceName, msgType):
-    rospy.wait_for_service(serviceName)
+    connected = False
+    hadFail = False
+    while not connected:
+        try:
+            rospy.wait_for_service(serviceName, timeout=10.0)
+            connected = True
+            if hadFail:
+                rospy.logwarn("Successfully connected to service '"+serviceName+"'.")
+        except ROSException as e:
+            rospy.logwarn("Failed to wait for service '"+serviceName+"', will now retry...")
+            hadFail = True
     return rospy.ServiceProxy(serviceName, msgType)
 
 
 def waitForControllersLoad(controllerNames, listControllers_service):
     allLoaded = False
+    hadFailure = False
     while not allLoaded:
         res = listControllers_service()
         loadedControllerNames = [c.name for c in res.controller]
@@ -23,10 +35,15 @@ def waitForControllersLoad(controllerNames, listControllers_service):
                 allLoaded = False
                 break
         if not allLoaded:
-            rospy.sleep(1)
+            rospy.logwarn("Waiting for controllers...")
+            hadFailure = True
+            rospy.sleep(1.0)
+            rospy.logwarn("Waited 1s")
+    if hadFailure:
+        rospy.logwarn("All controllers loaded")
 
 
-rospy.init_node('startup_setup_panda_sim', anonymous=True)
+rospy.init_node('start_ros_controller', anonymous=True)
 controllerNames = str(rospy.get_param("~controllers"))
 controllerNames = controllerNames.strip("[ ]")
 controllerNames = controllerNames.split(", ")

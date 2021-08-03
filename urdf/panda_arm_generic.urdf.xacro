@@ -8,6 +8,8 @@
   <xacro:arg name="yaw" default="0" />
   <xacro:arg name="connected_to" default="world" />
   <xacro:arg name="control_mode" default="effort" />
+  <xacro:arg name="robot_name" default="panda" />
+  <xacro:arg name="load_hand" default="false" />
 
   <xacro:include filename="$(find lr_panda)/urdf/panda_arm_generic.xacro"/>
 

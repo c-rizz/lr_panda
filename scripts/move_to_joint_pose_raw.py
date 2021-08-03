@@ -36,7 +36,9 @@ def waitForControllersStart(controllerNames, listControllers_service):
                 allStarted = False
                 break
         if not allStarted:
+            rospy.logwarn("Waiting 1s")
             rospy.sleep(1)
+            rospy.logwarn("Waited 1s")
 
 if __name__ == "__main__":
     rospy.init_node('move_to_joint_pose_raw', anonymous=True, log_level=rospy.INFO)
@@ -52,8 +54,12 @@ if __name__ == "__main__":
 
     controllerActionName = "/"+controllerNamespace+"/follow_joint_trajectory"
     controllerClient = actionlib.SimpleActionClient(controllerActionName, FollowJointTrajectoryAction)
-    rospy.logwarn("Waiting for "+str(controllerActionName)+"...")
-    controllerClient.wait_for_server(rospy.Duration(30))
+    connected = False
+    while not connected:
+        rospy.logwarn("Waiting for "+str(controllerActionName)+"...")
+        rospy.sleep(1.0)
+        rospy.logwarn("Waited 1s")
+        connected = controllerClient.wait_for_server(rospy.Duration(5.0))
 
     listControllers_service = buildServiceProxy("/controller_manager/list_controllers", ListControllers)
     waitForControllersStart([controllerNamespace], listControllers_service)
