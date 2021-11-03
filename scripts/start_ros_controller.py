@@ -6,6 +6,7 @@ from controller_manager_msgs.srv import SwitchController
 from controller_manager_msgs.srv import ListControllers
 from controller_manager_msgs.srv import SwitchControllerRequest
 from rospy.exceptions import ROSException
+import time
 
 def buildServiceProxy(serviceName, msgType):
     connected = False
@@ -18,6 +19,7 @@ def buildServiceProxy(serviceName, msgType):
                 rospy.logwarn("Successfully connected to service '"+serviceName+"'.")
         except ROSException as e:
             rospy.logwarn("Failed to wait for service '"+serviceName+"', will now retry...")
+            time.sleep(1)
             hadFail = True
     return rospy.ServiceProxy(serviceName, msgType)
 
