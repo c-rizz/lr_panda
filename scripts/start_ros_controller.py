@@ -18,6 +18,7 @@ def buildServiceProxy(serviceName, msgType):
                 rospy.logwarn("Successfully connected to service '"+serviceName+"'.")
         except ROSException as e:
             rospy.logwarn("Failed to wait for service '"+serviceName+"', will now retry...")
+            rospy.sleep(1.0)
             hadFail = True
     return rospy.ServiceProxy(serviceName, msgType)
 
