@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
   <!-- safety_distance: Minimum safety distance in [m] by which the collision volumes are expanded and which is enforced during robot motions -->
   <!-- arm_id: Namespace of the panda arm. Serves to differentiate between arms in case of multiple instances. -->
-  <xacro:macro name="panda_arm" params="arm_id:='panda' description_pkg:='franka_description' connected_to:='' xyz:='0 0 0.855' rpy:='0 0 0' safety_distance:=0">
+  <xacro:macro name="panda_arm" params="arm_id:='panda' description_pkg:='franka_description' connected_to:='' xyz:='0 0 0.855' rpy:='0 0 0' safety_distance:=0 enable_collisions:=true">
 
     <xacro:unless value="${not connected_to}">
       <joint name="${arm_id}_joint_${connected_to}" type="fixed">
@@ -20,11 +20,13 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link0.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="package://${description_pkg}/meshes/visual/link0.dae"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <geometry>
+            <mesh filename="package://${description_pkg}/meshes/visual/link0.dae"/>
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -40,11 +42,13 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link1.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="package://${description_pkg}/meshes/visual/link1.dae"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <geometry>
+            <mesh filename="package://${description_pkg}/meshes/visual/link1.dae"/>
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -68,25 +72,26 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link2.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.06+safety_distance}" length="0.12" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+safety_distance}" length="0.12" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+      </xacro:if>
         <!-- for simulation -->
         <inertial>
           <origin xyz="0 0 0" rpy="0 0 0" />
@@ -109,24 +114,26 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link3.dae"/>
         </geometry>
       </visual>
+    <xacro:if value="${enable_collisions}">
       <collision>
-        <origin xyz="0 0 -0.145" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.06+safety_distance}" length="0.15" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.22" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.07" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
+          <origin xyz="0 0 -0.145" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+safety_distance}" length="0.15" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.22" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.07" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -150,24 +157,26 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link4.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.06+safety_distance}" length="0.12" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <origin xyz="0 0 0" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+safety_distance}" length="0.12" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -191,42 +200,44 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link5.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <origin xyz="0 0 -0.26" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.06+safety_distance}" length="0.1" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.31" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.21" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.06+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0.08 -0.13" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.025+safety_distance}" length="0.14" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0.08 -0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.025+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0.08 -0.20" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.025+safety_distance}" />
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <origin xyz="0 0 -0.26" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.06+safety_distance}" length="0.1" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.31" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.21" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.06+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0.08 -0.13" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.025+safety_distance}" length="0.14" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0.08 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.025+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0.08 -0.20" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.025+safety_distance}" />
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -250,24 +261,26 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link6.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <origin xyz="0 0 -0.03" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.05+safety_distance}" length="0.08" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 0.01" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.05+safety_distance}" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.07" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.05+safety_distance}" />
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <origin xyz="0 0 -0.03" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.05+safety_distance}" length="0.08" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.01" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.05+safety_distance}" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.07" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.05+safety_distance}" />
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>
@@ -291,24 +304,26 @@
           <mesh filename="package://${description_pkg}/meshes/visual/link7.dae"/>
         </geometry>
       </visual>
-      <collision>
-        <origin xyz="0 0 0.01" rpy="0 0 0"/>
-        <geometry>
-          <cylinder radius="${0.04+safety_distance}" length="0.14" />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 0.08" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.04+safety_distance}"  />
-        </geometry>
-      </collision>
-      <collision>
-        <origin xyz="0 0 -0.06" rpy="0 0 0"/>
-        <geometry>
-          <sphere radius="${0.04+safety_distance}"  />
-        </geometry>
-      </collision>
+      <xacro:if value="${enable_collisions}">
+        <collision>
+          <origin xyz="0 0 0.01" rpy="0 0 0"/>
+          <geometry>
+            <cylinder radius="${0.04+safety_distance}" length="0.14" />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 0.08" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.04+safety_distance}"  />
+          </geometry>
+        </collision>
+        <collision>
+          <origin xyz="0 0 -0.06" rpy="0 0 0"/>
+          <geometry>
+            <sphere radius="${0.04+safety_distance}"  />
+          </geometry>
+        </collision>
+      </xacro:if>
 
         <!-- for simulation -->
         <inertial>

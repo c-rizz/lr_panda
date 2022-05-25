@@ -45,6 +45,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--traj_controller_name", required=False, default="panda_arm_effort_trajectory_controller", type=str, help="Topic namespace name for the trajectory contorller to use")
     ap.add_argument("--robot_name", required=False, default="panda", type=str, help="Topic namespace name for the trajectory contorller to use")
+    ap.add_argument("--joint_prefix", required=False, default="joint", type=str, help="Naming of the joints")
     ap.add_argument('--joint_pose', nargs='+', type=float)
     args = vars(ap.parse_known_args()[0])
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
     assert len(args["joint_pose"])==7, "joint_pose should be composed of 7 floats, it currently is "+str(args["joint_pose"])
 
 
-    controllerActionName = "/"+controllerNamespace+"/follow_joint_trajectory"
+    controllerActionName = controllerNamespace+"/follow_joint_trajectory"
     controllerClient = actionlib.SimpleActionClient(controllerActionName, FollowJointTrajectoryAction)
     connected = False
     while not connected:
@@ -60,19 +61,21 @@ if __name__ == "__main__":
         rospy.sleep(1.0)
         rospy.logwarn("Waited 1s")
         connected = controllerClient.wait_for_server(rospy.Duration(5.0))
+    rospy.loginfo("Connected")
 
-    listControllers_service = buildServiceProxy("/controller_manager/list_controllers", ListControllers)
+    listControllers_service = buildServiceProxy("controller_manager/list_controllers", ListControllers)
     waitForControllersStart([controllerNamespace], listControllers_service)
+    rospy.loginfo("Controller ready")
 
 
     goal = FollowJointTrajectoryGoal()
-    goal.trajectory.joint_names = [ args["robot_name"]+'_joint1',
-                                    args["robot_name"]+'_joint2',
-                                    args["robot_name"]+'_joint3',
-                                    args["robot_name"]+'_joint4',
-                                    args["robot_name"]+'_joint5',
-                                    args["robot_name"]+'_joint6',
-                                    args["robot_name"]+'_joint7']
+    goal.trajectory.joint_names = [ args["robot_name"]+'_'+args["joint_prefix"]+'1',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'2',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'3',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'4',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'5',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'6',
+                                    args["robot_name"]+'_'+args["joint_prefix"]+'7']
 
     #print("args['joint_pose'] = "+str(args["joint_pose"]))
 
@@ -82,6 +85,7 @@ if __name__ == "__main__":
     point.time_from_start = rospy.Duration(10)
     goal.trajectory.points = [point]
 
+    rospy.loginfo("Sending goal")
     controllerClient.send_goal(goal)
     rospy.logwarn("Waiting for action completion...")
     r = controllerClient.wait_for_result(point.time_from_start+rospy.Duration(5))

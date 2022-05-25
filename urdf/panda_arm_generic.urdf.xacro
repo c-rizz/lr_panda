@@ -10,6 +10,7 @@
   <xacro:arg name="control_mode" default="effort" />
   <xacro:arg name="robot_name" default="panda" />
   <xacro:arg name="load_hand" default="false" />
+  <xacro:arg name="arm_collisions" default="false" />
 
   <xacro:include filename="$(find lr_panda)/urdf/panda_arm_generic.xacro"/>
 
@@ -24,6 +25,7 @@
                             connected_to="$(arg connected_to)"
                             control_mode="$(arg control_mode)"
                             robot_name="$(arg robot_name)"
-                            load_hand="$(arg load_hand)"/>
+                            load_hand="$(arg load_hand)"
+                            arm_collisions="$(arg arm_collisions)"/>
 
 </robot>
