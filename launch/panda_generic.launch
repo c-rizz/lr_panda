@@ -162,10 +162,11 @@
         </group>
 
 
-        <node name="spawn_urdf"
+        <node name="spawn_panda"
               pkg="gazebo_ros"
               type="spawn_model"
-              args="-param $(arg robot_name)_description -urdf -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)" />
+              args="-param $(arg robot_name)_description -urdf -model $(arg robot_name) -x $(arg x) -y $(arg y) -z $(arg z) -P $(arg pitch) -R $(arg roll) -Y $(arg yaw)"
+              output="screen" />
         <!-- The arguemnts: "-J panda_joint1 0 -J panda_joint2 0 -J panda_joint3 0 -J panda_joint4 -1 -J panda_joint5 0 -J panda_joint6 1 -J panda_joint7 0"
              work, but not nicely -->
 
